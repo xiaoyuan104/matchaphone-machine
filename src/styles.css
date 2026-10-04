@@ -55,3 +55,64 @@ html[data-chacha-home-recovery=true],html[data-chacha-home-recovery=true] body,h
 html[data-chacha-theme=dark] .phone.pwa-home-layout-v5-recovery.native-mobile-viewport .cha-home.pwa-home-image-wallpaper .desktop-footer-stack .cha-dock{background:#191a20b8!important;border-color:#ffffff26!important}
 }
 html[data-chacha-home-recovery=true],html[data-chacha-home-recovery=true] body,html[data-chacha-home-recovery=true] #root,html[data-chacha-home-recovery=true] .stage,html[data-chacha-home-recovery=true] .phone.pwa-home-layout-v5-recovery,html[data-chacha-home-recovery=true] .phone.pwa-home-layout-v5-recovery>.screen{background-color:var(--chacha-page-background,#f7f6f5);background-image:var(--chacha-canvas-image,none);background-position:center;background-repeat:no-repeat;background-size:cover}
+/* =========================================
+   iOS PWA 安全区 - 终极暴力兜底 (放最后)
+   ========================================= */
+
+/* 1. 顶层容器：强制留出顶部(灵动岛)和底部(横条) */
+html[data-chacha-home-recovery="true"] body #root .stage .phone.pwa-home-layout-v4-recovery.native-mobile-viewport .cha-home,
+html[data-chacha-home-recovery="true"] body #root .stage .phone.pwa-home-layout-v5-recovery.native-mobile-viewport .cha-home,
+html[data-chacha-home-recovery="true"] body #root .stage .phone.pwa-home-layout-v3.native-mobile-viewport .cha-home {
+  padding-top: 60px !important;      /* 灵动岛/状态栏兜底 */
+  padding-bottom: 45px !important;    /* 底部横条+Dock兜底 */
+  box-sizing: border-box !important;
+  /* 防止原代码死高度截断 */
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+/* 2. 底部 Footer/Dock：强制抬升，不被横条遮挡 */
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v4-recovery.native-mobile-viewport .cha-home .desktop-footer-stack,
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v5-recovery.native-mobile-viewport .cha-home .desktop-footer-stack,
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v3.native-mobile-viewport .cha-home .desktop-footer-stack {
+  bottom: 35px !important; /* 原5px + 底部安全区 */
+  padding-bottom: 0 !important;
+  box-sizing: border-box !important;
+}
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v4-recovery.native-mobile-viewport .cha-home .desktop-footer-stack .cha-dock,
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v5-recovery.native-mobile-viewport .cha-home .desktop-footer-stack .cha-dock,
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v3.native-mobile-viewport .cha-home .desktop-footer-stack .cha-dock {
+  padding-bottom: 15px !important;
+  box-sizing: border-box !important;
+}
+
+/* 3. 顶部 Hero (Proceed...)：额外下推 */
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v4-recovery.native-mobile-viewport .cha-home .widget-hero-profile,
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v5-recovery.native-mobile-viewport .cha-home .widget-hero-profile,
+html[data-chacha-home-recovery="true"] .phone.pwa-home-layout-v3.native-mobile-viewport .cha-home .widget-hero-profile {
+  margin-top: 10px !important; /* 在60px padding基础上再微调 */
+  box-sizing: border-box !important;
+}
+
+/* 4. 右下角 "..." 按钮兜底 (常见类名猜测) */
+html[data-chacha-home-recovery="true"] .phone .cha-home [class*="float"],
+html[data-chacha-home-recovery="true"] .phone .cha-home [class*="more"],
+html[data-chacha-home-recovery="true"] .phone .cha-home [class*="ellipsis"],
+html[data-chacha-home-recovery="true"] .phone .cha-home .dot-btn,
+html[data-chacha-home-recovery="true"] .phone .cha-home .action-btn {
+  bottom: calc(120px + env(safe-area-inset-bottom, 40px)) !important;
+  /* 兜底：如果上面类名不对，这句无效，但不报错 */
+}
+
+/* 5. 强制启用安全区环境变量（如果原meta缺失） 
+   注：这行是CSS，实际viewport需HTML meta，此处仅作提示 
+   请确保HTML有: <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"> 
+*/
+@supports (padding: env(safe-area-inset-top)) {
+  html[data-chacha-home-recovery="true"] body {
+    /* 尝试注入，但被!important战争影响，主要看上面固定值 */
+    --sat: env(safe-area-inset-top, 60px);
+    --sab: env(safe-area-inset-bottom, 40px);
+  }
+}
